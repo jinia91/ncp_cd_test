@@ -73,23 +73,25 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/test:latest         
             
             # 새로운 컨테이너의 Health Check
+            success=false
             for i in {1..100}; do
-              if  | grep 'UP'; then
+              if curl -s http://localhost:${NEW_PORT}/health | grep 'UP'; then
                 echo "새로운 인스턴스를 ${NEW_PORT} 에서 실행하고 헬스 체크 완료"
+                success=true
                 break
               fi
               echo "새로운 인스턴스 ${NEW_PORT} 헬스체크 기다리는중"
               sleep 5
-            done
+            done        
             
             # 기존 컨테이너 중지 및 제거
             if [ "$NEW_PORT" == "7777" ]; then
-              sudo docker stop $(sudo docker ps -q --filter "publish=7776")
-              sudo docker rm $(sudo docker ps -aq --filter "publish=7776")
-            else
-              sudo docker stop $(sudo docker ps -q --filter "publish=7777")
-              sudo docker rm $(sudo docker ps -aq --filter "publish=7777")
+              sudo docker stop $(sudo docker ps -q --filter "name=test-7776")
+              sudo docker rm $(sudo docker ps -aq --filter "name=test-7776")
+              else
+              sudo docker stop $(sudo docker ps -q --filter "name=test-7777")
+              sudo docker rm $(sudo docker ps -aq --filter "name=test-7777")
             fi
-            
+              
             # 도커 이미지 청소
             sudo docker image prune -f
