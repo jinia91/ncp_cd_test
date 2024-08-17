@@ -1,11 +1,8 @@
 name: NCP 컨테이너 배포 테스트
-run-name: 배포 테스트 - ${{ github.ref_name }} > ${{ input.CONFIRMATION }}
+run-name: 배포 테스트 - ${{ github.ref_name }}
 
 on:
   workflow_dispatch:
-    inputs:
-      CONFIRMATION:
-        description: '배포할 브랜치 선택'
 
 jobs:
   docker-build:
