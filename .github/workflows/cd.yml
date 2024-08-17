@@ -95,13 +95,12 @@ jobs:
               PREVIOUS_CONTAINER="test-${CURRENT_PORT}"
               sudo docker stop ${PREVIOUS_CONTAINER}
               sudo docker rm ${PREVIOUS_CONTAINER}
-              # 도커 이미지 청소
-              sudo docker image prune -f
             else
               echo "배포 실패. 새로운 컨테이너 제거 및 기존 상태 유지 중..."
               # 실패 시 새 컨테이너 제거
               sudo docker stop ${CONTAINER_NAME}
               sudo docker rm ${CONTAINER_NAME}
-              # 이미지 청소
-              sudo docker image prune -f
             fi
+            
+            # 도커 이미지 청소
+            sudo docker image prune -f
