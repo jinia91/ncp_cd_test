@@ -9,4 +9,9 @@ class HelloNcpController {
     fun test() : String {
         return "Hello NCP"
     }
+
+    @GetMapping("/hello2")
+    fun test2() : String {
+        return "Hello NCP2"
+    }
 }
