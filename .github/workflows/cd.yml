@@ -75,7 +75,7 @@ jobs:
             # 새로운 컨테이너의 Health Check
             success=false
             for i in {1..100}; do
-              if curl -s http://localhost:${NEW_PORT}/health | grep 'UP'; then
+              if curl -s http://localhost:${NEW_PORT}/actuator/health | grep 'UP'; then
                 echo "새로운 인스턴스를 ${NEW_PORT} 에서 실행하고 헬스 체크 완료"
                 success=true
                 break
