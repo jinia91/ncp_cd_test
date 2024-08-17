@@ -39,5 +39,5 @@ out/
 ### Kotlin ###
 .kotlin
 
-**/application.yml
-**/application.properties
+!**/application.yml
+!**/application.properties
