@@ -59,7 +59,7 @@ jobs:
             
             # 현재 실행 중인 컨테이너 확인
             CURRENT_PORT=$(sudo docker ps --format "{{.Ports}}" | grep -oP '(\d+)->7777' | grep -oP '^\d+')
-            if [ "$CURRENT_PORT" == "7776" ]; then
+            if [ "${CURRENT_PORT}" == "7776" ]; then
               NEW_PORT=7777
               echo "현재 실행중인 포트는 7776 이고 7777로 실행할거임"
             else
@@ -81,17 +81,27 @@ jobs:
                 break
               fi
               echo "새로운 인스턴스 ${NEW_PORT} 헬스체크 기다리는중"
-              sleep 5
+              sleep 3
             done        
             
-            # 기존 컨테이너 중지 및 제거
-            if [ "$NEW_PORT" == "7777" ]; then
-              sudo docker stop $(sudo docker ps -q --filter "name=test-7776")
-              sudo docker rm $(sudo docker ps -aq --filter "name=test-7776")
-              else
-              sudo docker stop $(sudo docker ps -q --filter "name=test-7777")
-              sudo docker rm $(sudo docker ps -aq --filter "name=test-7777")
-            fi
+            if [ "$success" = true ]; then
+              echo "배포 성공. NGINX 리로드 및 이전 버전 리소스 정리 중..."
               
-            # 도커 이미지 청소
-            sudo docker image prune -f
+              # NGINX 설정 변경 및 리로드
+              sudo sed -i "s/localhost:${CURRENT_PORT}/localhost:${NEW_PORT}/" /etc/nginx/sites-available/default
+              sudo nginx -s reload
+            
+              # 이전 컨테이너 중지 및 제거
+              PREVIOUS_CONTAINER="test-${CURRENT_PORT}"
+              sudo docker stop ${PREVIOUS_CONTAINER}
+              sudo docker rm ${PREVIOUS_CONTAINER}
+              # 도커 이미지 청소
+              sudo docker image prune -f
+            else
+              echo "배포 실패. 새로운 컨테이너 제거 및 기존 상태 유지 중..."
+              # 실패 시 새 컨테이너 제거
+              sudo docker stop ${CONTAINER_NAME}
+              sudo docker rm ${CONTAINER_NAME}
+              # 이미지 청소
+              sudo docker image prune -f
+            fi
